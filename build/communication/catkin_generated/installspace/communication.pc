@@ -1,0 +1,8 @@
+prefix=/home/kevin/catkin_ws/install
+
+Name: communication
+Description: Description of communication
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/kevin/catkin_ws/install/lib 
+Requires: 
