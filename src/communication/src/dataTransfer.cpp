@@ -43,6 +43,11 @@ void chatterCallback(const msgfile::Core2Voice::ConstPtr& msg){
 	msgToiFLytek.name   = msg->name;
 	msgToiFLytek.gender = msg->gender;
 	msgToiFLytek.age    = msg->age;
+	//message to frontEnd
+	msgTofrontEnd.name  = msg->name;
+	msgTofrontEnd.gender = msg->gender;
+	msgTofrontEnd.age = msg->age;
+
 	msgToiFLytek.generate_Json(msgToiFLytek.cmd, msgToiFLytek.name, msgToiFLytek.gender, msgToiFLytek.age, msgToiFLytek.Json);
 
 	cout << "[ 'dataTransfer->Callback' ]: " << msgToiFLytek.Json << endl;
@@ -80,12 +85,15 @@ void* _writeTofrontEnd(void* arg){
 	const char *fifo_name = "/home/kevin/myfifo/ros_2_frontEnd";
 
 	int res = 0;
-	int open_mode = O_WRONLY; 
-	//记得注释掉
-	open_mode = O_WRONLY | O_NONBLOCK;
+	int open_mode; 
+
 #ifdef FRONT_END_SIMULATION
 	open_mode = O_WRONLY | O_NONBLOCK; 
+#else
+	open_mode = O_WRONLY | O_NONBLOCK;
 #endif
+
+	// open_mode = O_WRONLY;
 
 	if(access(fifo_name, F_OK) == -1){
 		res = mkfifo(fifo_name, 0777);
@@ -100,14 +108,13 @@ void* _writeTofrontEnd(void* arg){
 		cout << "[ '_writeTofrontEnd' ] open err " << endl;
 	else 
 		cout << "[ '_writeTofrontEnd' ] open successfully!" << endl;
-
-	const char* test = "test msg to front end!";
+	
 
 #ifdef FRONT_END_SIMULATION
 
-	/*********************
-	***   Simulation   ***
-	**********************/
+	/**********************************************************************************
+	**                                SIMULATION                                     **
+	***********************************************************************************/
 	msgTofrontEnd.pageStatus = "idle"; 
 	msgTofrontEnd.name       = "甘坤";
 	msgTofrontEnd.gender     = "male";
@@ -124,61 +131,51 @@ void* _writeTofrontEnd(void* arg){
 		//idle:欢迎页面,只需要指定pageStatus即可，其余信息均为空
 		msgTofrontEnd.generate_Json("idle", "unknown", "unknown", 00, "", "", "", "", "", "", msgTofrontEnd.Json);
 		int res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
+		cout << "[ 'FRONT_END' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		usleep(1000*2000);
 		
-		//服务对象出现，页面状态切换为initial，大眼睛酒保语音问候开始
-		//initial:需要发送顾客身份信息，此状态滚动显示所有菜单
-		msgTofrontEnd.generate_Json("initial", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "", "", "", "", "", "false", msgTofrontEnd.Json);
+		//服务对象出现，页面状态切换为working，大眼睛语音问候开始,界面显示全部饮品菜单以及推荐饮品
+		//working：需发送顾客身份信息以及语音识别内容
+		msgTofrontEnd.generate_Json("working", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "我要两杯卡布奇诺", "", "", "", "", "false", msgTofrontEnd.Json);
 		res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
+		cout << "[ 'FRONT_END' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		usleep(1000*3000);
-
-		//语音问候结束后，则将显示根据身份特征推荐的饮品种类,并显示语音识别内容
-		//recommendation：需发送顾客身份信息，以及语音识别内容
-		msgTofrontEnd.generate_Json("recommendation", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "我要两杯卡布其诺", "", "", "", "", "false", msgTofrontEnd.Json);
+		msgTofrontEnd.generate_Json("working", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "冰的", "", "", "", "", "false", msgTofrontEnd.Json);
 		res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
+		cout << "[ 'FRONT_END' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		usleep(1000*2000);
-		msgTofrontEnd.generate_Json("recommendation", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "冰的", "", "", "", "", "false", msgTofrontEnd.Json);
+		msgTofrontEnd.generate_Json("working", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "还是换成热的吧", "", "", "", "", "false", msgTofrontEnd.Json);
 		res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
+		cout << "[ 'FRONT_END' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		usleep(1000*2000);
-		msgTofrontEnd.generate_Json("recommendation", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "还是换成热的吧", "", "", "", "", "false", msgTofrontEnd.Json);
+		msgTofrontEnd.generate_Json("working", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "是的", "", "", "", "", "false", msgTofrontEnd.Json);
 		res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
-		usleep(1000*2000);
-		msgTofrontEnd.generate_Json("recommendation", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "是的", "", "", "", "", "false", msgTofrontEnd.Json);
-		res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
+		cout << "[ 'FRONT_END' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		usleep(1000*2000);
 
 		//顾客确认订单信息后，则显示订单详情
 		//orerInfo:发送顾客身份信息，以及订单信息
 		msgTofrontEnd.generate_Json("orderInfo", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "", msgTofrontEnd.DrinkName, msgTofrontEnd.CupNum, msgTofrontEnd.CupType, msgTofrontEnd.Temp, "true", msgTofrontEnd.Json);
 		res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-		cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
+		cout << "[ 'FRONT_END' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		usleep(1000*2000);
 	}
 #else
 
-	/***********************
-	***   State Machine  ***
-	************************/
+	/**********************************************************************************
+	**                               STATE  MACHINE                                  **
+	***********************************************************************************/
 	while(1){
 
-		//状态机:状态转移逻辑
 		//State Transition 
+		//"idle"->"workking"->"orderInfo"
 		if(msgToiFLytek.cmd!="working"){
 			msgTofrontEnd.pageStatus = "idle";
 		}
 		else if(msgTofrontEnd.pageStatus=="idle" && msgToiFLytek.cmd=="working"){
-			msgTofrontEnd.pageStatus = "initial";	
-		} 
-		else if(msgTofrontEnd.pageStatus=="initial" && strcmp(msgFromiFlytek.greetingDone,"true")==0){
-			msgTofrontEnd.pageStatus = "recommendation";	
+			msgTofrontEnd.pageStatus = "working";	
 		}
-		else if(msgTofrontEnd.pageStatus=="recommendation" && strcmp(msgFromiFlytek.OrderFinish,"true")==0){
+		else if(msgTofrontEnd.pageStatus=="working" && strcmp(msgFromiFlytek.OrderFinish,"true")==0){
 			msgTofrontEnd.pageStatus = "orderInfo";
 		}
 
@@ -189,23 +186,18 @@ void* _writeTofrontEnd(void* arg){
 			int res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
 			cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		}
-		//服务对象出现，页面状态切换为initial，大眼睛语音问候开始
-		//initial:需要发送顾客身份信息，此状态滚动显示所有菜单
-		else if(msgTofrontEnd.pageStatus=="initial"){
-			msgTofrontEnd.generate_Json("initial", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "", "", "", "", "", "false", msgTofrontEnd.Json);
-			res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
-			cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
-		}
-		//语音问候结束后，显示推荐的饮品种类,并显示语音识别内容
-		//recommendation：需发送顾客身份信息以及语音识别内容
-		else if(msgTofrontEnd.pageStatus=="recommendation"){
-			msgTofrontEnd.generate_Json("recommendation", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, msgFromiFlytek.speechRecoResult, "", "", "", "", "false", msgTofrontEnd.Json);
+		//服务对象出现，页面状态切换为working，大眼睛语音问候开始,界面显示全部饮品菜单以及推荐饮品
+		//working：需发送顾客身份信息以及语音识别内容
+		else if(msgTofrontEnd.pageStatus=="working"){
+			msgTofrontEnd.generate_Json("working", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, msgFromiFlytek.speechRecoResult, "", "", "", "", "false", msgTofrontEnd.Json);
 			res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
 			cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
 		}
 		//顾客确认订单信息后，则界面显示订单详情
 		//orerInfo:发送顾客身份信息，以及订单信息
 		else if(msgTofrontEnd.pageStatus=="orderInfo"){
+			//默认大杯，后续增添询问环节	
+			msgTofrontEnd.CupType = "大杯";
 			msgTofrontEnd.generate_Json("orderInfo", msgTofrontEnd.name, msgTofrontEnd.gender, msgTofrontEnd.age, "", msgTofrontEnd.DrinkName, msgTofrontEnd.CupNum, msgTofrontEnd.CupType, msgTofrontEnd.Temp, "true", msgTofrontEnd.Json);
 			res = write(pipe_fd_wr_frontEnd, msgTofrontEnd.Json, strlen(msgTofrontEnd.Json));
 			cout << "[ '_writeTofrontEnd' ] write to front end: " << msgTofrontEnd.Json << endl << endl;
@@ -259,7 +251,6 @@ void* _writeToiFLytek(void* arg){
 		msgToiFLytek.gender = gender;
 		msgToiFLytek.age    = age;
 	while(1){
-		
 		// cout << "[ '_writeToiFLytek' ] Input command: ";
 		cin >> msgToiFLytek.cmd;
 		msgToiFLytek.generate_Json(msgToiFLytek.cmd, msgToiFLytek.name, msgToiFLytek.gender, msgToiFLytek.age, msgToiFLytek.Json);
