@@ -378,13 +378,53 @@ void* _readFromiFLytek(void* arg){
 			msg2core.emotion = "Happy";
 			msg2core.OrderFinish = false;
 			chatter_pub.publish(msg2core);
-			cout << " voicePub "<< cnt << endl;
+			cout << "voicePub "<< cnt << endl;
+
+			cnt += 1;
+			usleep(1000*1000);
+			msg2core.name = "Jason";
+			msg2core.emotion = "Sad";
+			msg2core.OrderFinish = false;
+			chatter_pub.publish(msg2core);
+			cout << "voicePub" << cnt << endl;
 
 			cnt += 1;
 			usleep(1000*1000);
 			msg2core.name = "Tom";
 			msg2core.emotion = "Sad";
 			msg2core.OrderFinish = false;
+			chatter_pub.publish(msg2core);
+			cout << "voicePub" << cnt << endl;
+
+			cnt += 1;
+			usleep(1000*1000);
+			msg2core.name = "Tom";
+			msg2core.emotion = "Sad";
+			msg2core.OrderFinish = false;
+			chatter_pub.publish(msg2core);
+			cout << "voicePub" << cnt << endl;
+
+			cnt += 1;
+			usleep(1000*1000);
+			msg2core.name = "Tom";
+			msg2core.emotion = "Sad";
+			msg2core.OrderFinish = false;
+			chatter_pub.publish(msg2core);
+			cout << "voicePub" << cnt << endl;
+
+			cnt += 1;
+			usleep(1000*1000);
+			msg2core.name = "Tom";
+			msg2core.emotion = "Sad";
+			msg2core.OrderFinish = false;
+			chatter_pub.publish(msg2core);
+			cout << "voicePub" << cnt << endl;
+
+			cnt += 1;
+			usleep(1000*1000);
+			msg2core.name = "Tom";
+			msg2core.emotion = "Sad";
+			msg2core.OrderFinish = true;
 			chatter_pub.publish(msg2core);
 			cout << "voicePub" << cnt << endl;
 		}
